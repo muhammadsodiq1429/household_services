@@ -16,6 +16,11 @@ export class BotUpdate {
     return this.botService.onClickSignUp(ctx);
   }
 
+  @On("location")
+  async onLocation(@Ctx() ctx: Context) {
+    return this.botService.onLocation(ctx);
+  }
+
   @On("contact")
   async onContact(@Ctx() ctx: Context) {
     return this.botService.onContact(ctx);

@@ -37,7 +37,7 @@ export class MasterService {
         }
       );
     } catch (error) {
-      console.log("Error on 'ClickMaster' function");
+      console.log("Error on 'ClickMaster' function", error);
     }
   }
 
@@ -64,5 +64,4 @@ export class MasterService {
       console.log("Error on 'ClickService' function", error);
     }
   }
-
 }

@@ -4,7 +4,7 @@ interface IServiceCreationAttr {
   name: string;
 }
 
-@Table({ tableName: "service" })
+@Table({ tableName: "service", timestamps: false })
 export class Service extends Model<Service, IServiceCreationAttr> {
   @Column({ type: DataType.INTEGER, primaryKey: true, autoIncrement: true })
   declare id: number;

@@ -68,7 +68,9 @@ export class BotService {
           switch (master.last_state) {
             case "name":
               master.name = masterInput;
+              master.last_state = "phone";
               await master.save();
+
               await ctx.reply(
                 "Telefon raqamni yuborish uchun pastdagi tugmasi bosing:",
                 {
@@ -86,7 +88,7 @@ export class BotService {
           }
         }
       } catch (error) {
-        console.log("Error on 'Text' function");
+        console.log("Error on 'Text' function", error);
       }
     }
   }
@@ -102,20 +104,50 @@ export class BotService {
               .resize(),
           });
         } else {
-          master.phone = ctx.message.contact.phone_number;
-          await master.save();
+          if (master.last_state == "phone") {
+            master.phone = ctx.message.contact.phone_number;
+            master.last_state = "location";
+            await master.save();
 
-          await ctx.reply(
-            "Manzilingiz joylashivini yuborish uchun pastdagi tugmani bosing:",
-            {
-              ...Markup.keyboard([
-                [Markup.button.locationRequest("Joylashuvni ulashish")],
-              ]),
-            }
-          );
+            await ctx.reply(
+              "Manzilingiz joylashivini yuborish uchun pastdagi tugmani bosing:",
+              {
+                ...Markup.keyboard([
+                  [Markup.button.locationRequest("Joylashuvni ulashish")],
+                ])
+                  .oneTime()
+                  .resize(),
+              }
+            );
+          }
         }
       } catch (error) {
-        console.log("Error on 'Contact' function");
+        console.log("Error on 'Contact' function", error);
+      }
+    }
+  }
+
+  async onLocation(ctx: Context) {
+    if (ctx.message && "location" in ctx.message) {
+      try {
+        const master = await this.masterModel.findByPk(ctx.from!.id);
+        if (!master) {
+          await ctx.replyWithHTML(`Iltimos, <b>Start tugmasini bosing</b>`, {
+            ...Markup.keyboard([["/start"]])
+              .oneTime()
+              .resize(),
+          });
+        } else if (master.last_state == "location") {
+          master.location = `${ctx.message.location.latitude},${ctx.message.location.longitude}`;
+          master.last_state = "start_time";
+          await master.save();
+
+          await ctx.reply("Ish boshlash vaqtingizni kiriting(10:10):", {
+            ...Markup.removeKeyboard(),
+          });
+        }
+      } catch (error) {
+        console.log("Error on 'Location'", error);
       }
     }
   }
